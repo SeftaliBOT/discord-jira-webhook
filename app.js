@@ -24,7 +24,7 @@ app.post('/webhook', jsonParser, function (req, res) {
         
         // Extract needed info from Jira Payload
         var description = issue.fields.description
-        var summary = issue.fields.summary
+        var issue_title = issue.fields.summary
         var number = issue.key
         var status = issue.fields.status.name
         var link = encodeURI('https://'+account_name+'.atlassian.net/browse/'+number)
@@ -37,9 +37,9 @@ app.post('/webhook', jsonParser, function (req, res) {
             'username': 'Jira-Bot',
             'attachments': [{
                 'pretext': number,
-                'title': description,
+                'title': issue_title,
                 'title_link': link,
-                'text': summary,
+                'text': description,
                 "fields": [
                     {
                         "title": status,
