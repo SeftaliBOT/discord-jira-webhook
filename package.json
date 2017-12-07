@@ -1,0 +1,20 @@
+{
+  "name": "twilio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "express-post.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "discord.js": "^11.2.1",
+    "dotenv": "^4.0.0",
+    "erlpack": "github:discordapp/erlpack",
+    "express": "^4.16.2",
+    "node-opus": "^0.2.7",
+    "opusscript": "0.0.4"
+  }
+}
