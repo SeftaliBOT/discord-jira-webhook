@@ -15,18 +15,21 @@ var jsonParser = bodyParser.json()
 // Route that receives a POST request to /sms
 app.post('/webhook', jsonParser, function (req, res) {
     if (!req.body) return res.sendStatus(400)
-   
-        var message = Object.entries(req.body)
 
+        // Easier formatting
         var issue = req.body.issue
+
+        // Pull Jira account name from .env file
         var account_name = process.env.ACCOUNT_NAME
         
+        // Extract needed info from Jira Payload
         var description = issue.fields.description
         var summary = issue.fields.summary
         var number = issue.key
         var status = issue.fields.status.name
         var link = encodeURI('https://'+account_name+'.atlassian.net/browse/'+number)
 
+        // Create Webhook Client
         const hook = new Discord.WebhookClient(process.env.WEBHOOK_ID, process.env.WEBHOOK_SECRET)
         
         // Send update to Discord Channel via Webhook with Slack formatting
