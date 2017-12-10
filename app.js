@@ -35,39 +35,43 @@ function parse_issue_payload(payload) {
   };
 }
 
+app.get('/', function(req, res) { res.send('Were up and running!'); });
+
 // Route that receives a POST request to /sms
 app.post('/webhook', jsonParser, function (req, res) {
-    if (!req.body) return res.sendStatus(400)
 
-        let issue = parse_issue_payload(req.body);
+  // if there is not request body return a 400 error
+  if (!req.body) return res.sendStatus(400);
 
-        // Create Webhook Client
-        const hook = new Discord.WebhookClient(process.env.WEBHOOK_ID, process.env.WEBHOOK_SECRET)
+  let issue = parse_issue_payload(req.body);
 
-        // the payload we are sending to discord
-        let discord_payload = {
-            'username': 'Jira-Bot',
-            'attachments': [{
-                'pretext': issue.number,
-                'title': issue.title,
-                'title_link': issue.link,
-                'text': issue.description,
-                "fields": [
-                    {
-                      "title": "Status",
-                      "value": issue.status
-                    },
-                    {
-                      "title": "Assigned To",
-                      "value": issue.assignedTo
-                    }],
-                'color': '#2684FF',
-            }]
-          };
+  // Create Webhook Client
+  const hook = new Discord.WebhookClient(process.env.WEBHOOK_ID, process.env.WEBHOOK_SECRET)
 
-        // Send update to Discord Channel via Webhook with Slack formatting
-        hook.sendSlackMessage(discord_payload).catch(console.error)
-    })
+  // the payload we are sending to discord
+  let discord_payload = {
+      'username': 'Jira-Bot',
+      'attachments': [{
+          'pretext': issue.number,
+          'title': issue.title,
+          'title_link': issue.link,
+          'text': issue.description,
+          "fields": [
+              {
+                "title": "Status",
+                "value": issue.status
+              },
+              {
+                "title": "Assigned To",
+                "value": issue.assignedTo
+              }],
+          'color': '#2684FF',
+      }]
+    };
+
+  // Send update to Discord Channel via Webhook with Slack formatting
+  hook.sendSlackMessage(discord_payload).catch(console.error)
+});
 
 
 // Tell our app to listen on port 3000

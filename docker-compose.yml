@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - ACCOUNT_NAME=
+      - WEBHOOK_ID=
+      - WEBHOOK_SECRET=
+    volumes:
+      - ./:/home/node/app
+    ports:
+      - "80:3000"
+    command: "npm start"
