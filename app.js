@@ -12,42 +12,66 @@ const app = express()
 // create application/json parser
 var jsonParser = bodyParser.json()
 
+function parse_issue_payload(payload) {
+  let issue = payload.issue;
+  return {
+    project_name: issue.fields.project.name,
+    description: function() {
+      if (issue.fields.description != null) {
+        return issue.fields.description;
+      }
+      else if (issue.fields.description == null && issue.fields.status.name == 'Done') {
+        return issue.fields.resolution.description;
+      }
+      else if (issue.fields.description == null && issue.fields.status.name == 'In Progress') {
+        return issue.fields.status.description;
+      }
+    },
+    title: issue.fields.summary,
+    number: issue.key,
+    status: issue.fields.status.name,
+    assignedTo: issue.fields.assignee.displayName,
+    link: encodeURI('https://' + process.env.ACCOUNT_NAME + '.atlassian.net/browse/' + issue.key),
+  };
+}
+
+app.get('/', function(req, res) { res.send('Were up and running!'); });
+
 // Route that receives a POST request to /sms
 app.post('/webhook', jsonParser, function (req, res) {
-    if (!req.body) return res.sendStatus(400)
 
-        // Easier formatting
-        var issue = req.body.issue
+  // if there is not request body return a 400 error
+  if (!req.body) return res.sendStatus(400);
 
-        // Pull Jira account name from .env file
-        var account_name = process.env.ACCOUNT_NAME
-        
-        // Extract needed info from Jira Payload
-        var description = issue.fields.description
-        var issue_title = issue.fields.summary
-        var number = issue.key
-        var status = issue.fields.status.name
-        var link = encodeURI('https://'+account_name+'.atlassian.net/browse/'+number)
+  let issue = parse_issue_payload(req.body);
 
-        // Create Webhook Client
-        const hook = new Discord.WebhookClient(process.env.WEBHOOK_ID, process.env.WEBHOOK_SECRET)
-        
-        // Send update to Discord Channel via Webhook with Slack formatting
-        hook.sendSlackMessage({
-            'username': 'Jira-Bot',
-            'attachments': [{
-                'pretext': number,
-                'title': issue_title,
-                'title_link': link,
-                'text': description,
-                "fields": [
-                    {
-                        "title": status,
-                    }],
-                'color': '#2684FF',
-            }]
-        }).catch(console.error)
-    })
+  // Create Webhook Client
+  const hook = new Discord.WebhookClient(process.env.WEBHOOK_ID, process.env.WEBHOOK_SECRET)
+
+  // the payload we are sending to discord
+  let discord_payload = {
+      'username': 'Jira-Bot',
+      'attachments': [{
+          'pretext': issue.number,
+          'title': issue.title,
+          'title_link': issue.link,
+          'text': issue.description,
+          "fields": [
+              {
+                "title": "Status",
+                "value": issue.status
+              },
+              {
+                "title": "Assigned To",
+                "value": issue.assignedTo
+              }],
+          'color': '#2684FF',
+      }]
+    };
+
+  // Send update to Discord Channel via Webhook with Slack formatting
+  hook.sendSlackMessage(discord_payload).catch(console.error)
+});
 
 
 // Tell our app to listen on port 3000
