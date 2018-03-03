@@ -5,7 +5,7 @@ RUN apk update && apk upgrade && \
 
 WORKDIR /app
 COPY package.json /app
-RUN npm install
+# RUN npm install
 COPY . /app
 
 EXPOSE 3000
