@@ -1,9 +1,12 @@
 FROM node:alpine
 
-USER node
-WORKDIR /home/node/app
+RUN apk update && apk upgrade && \
+    apk add --no-cache bash git openssh make gcc g++ python libtool autoconf automake
 
-COPY . .
+WORKDIR /app
+COPY package.json /app
+RUN npm install
+COPY . /app
 
 EXPOSE 3000
 CMD ["npm", "start"]

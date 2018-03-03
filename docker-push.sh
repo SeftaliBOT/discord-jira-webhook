@@ -1,4 +1,4 @@
 #!/bin/bash
-docker push docker.io/ludx/discord-jira-webhook:latest
+docker push r.cfcr.io/ludx/discord-jira-webhook:latest
 
 
