@@ -1,16 +1,14 @@
-'use strict'
+'use strict';
 
-require('dotenv').config()
-
-const express = require('express')
-const bodyParser = require('body-parser')
+const express = require('express');
+const bodyParser = require('body-parser');
 const Discord = require("discord.js");
 
 // Create a new instance of express
-const app = express()
+const app = express();
 
 // create application/json parser
-var jsonParser = bodyParser.json()
+const jsonParser = bodyParser.json();
 
 function parse_issue_payload(payload) {
   let issue = payload.issue;
@@ -20,10 +18,10 @@ function parse_issue_payload(payload) {
       if (issue.fields.description != null) {
         return issue.fields.description;
       }
-      else if (issue.fields.description == null && issue.fields.status.name == 'Done') {
+      else if (issue.fields.description == null && issue.fields.status.name === 'Done') {
         return issue.fields.resolution.description;
       }
-      else if (issue.fields.description == null && issue.fields.status.name == 'In Progress') {
+      else if (issue.fields.description == null && issue.fields.status.name === 'In Progress') {
         return issue.fields.status.description;
       }
     },
@@ -31,7 +29,7 @@ function parse_issue_payload(payload) {
     number: issue.key,
     status: issue.fields.status.name,
     assignedTo: issue.fields.assignee.displayName,
-    link: encodeURI('https://' + process.env.ACCOUNT_NAME + '.atlassian.net/browse/' + issue.key),
+    link: encodeURI('https://' + process.env.JIRA_ACCOUNT_NAME + '.atlassian.net/browse/' + issue.key),
   };
 }
 
@@ -46,39 +44,39 @@ app.post('/webhook', jsonParser, function (req, res) {
   let issue = parse_issue_payload(req.body);
 
   // Create Webhook Client
-  const hook = new Discord.WebhookClient(process.env.WEBHOOK_ID, process.env.WEBHOOK_SECRET)
+  const hook = new Discord.WebhookClient(process.env.DISCORD_WEBHOOK_ID, process.env.DISCORD_WEBHOOK_SECRET);
 
   // the payload we are sending to discord
   let discord_payload = {
-      'username': 'Jira-Bot',
-      'attachments': [{
-          'pretext': issue.number,
-          'title': issue.title,
-          'title_link': issue.link,
-          'text': issue.description,
-          "fields": [
+      username: 'JIRA',
+      iconEmoji: ':robot_face:',
+      attachments: [{
+          pretext: issue.number,
+          title: issue.title,
+          title_link: issue.link,
+          text: issue.description,
+          fields: [
               {
-                "title": "Status",
-                "value": issue.status
+                title: 'Status',
+                value: issue.status
               },
               {
-                "title": "Assigned To",
-                "value": issue.assignedTo
+                title: 'Assigned To',
+                value: issue.assignedTo
               }],
-          'color': '#2684FF',
+          color: '#2684FF',
       }]
     };
 
   // Send update to Discord Channel via Webhook with Slack formatting
-  hook.sendSlackMessage(discord_payload).catch(console.error)
+  hook.sendSlackMessage(discord_payload).catch(console.error);
 });
 
 
 // Tell our app to listen on port 3000
 app.listen(3000, function (err) {
     if (err) {
-        throw err
+        throw err;
     }
-
     console.log('Server started on port 3000')
-})
+});

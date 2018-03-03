@@ -10,8 +10,6 @@ services:
       - ACCOUNT_NAME=
       - WEBHOOK_ID=
       - WEBHOOK_SECRET=
-    volumes:
-      - ./:/home/node/app
     ports:
       - "80:3000"
     command: "npm start"
